@@ -7,18 +7,18 @@ class Concept:
     """
 
     def __init__(
-        self, lang: str, type: Part_of_Speech = None, string: str = None
+        self, lang: str, type: Part_of_Speech = None, label: str = None
     ) -> None:
-        if type and string is None:
+        if type and label is None:
             raise ValueError("`string` cannot be None when `type` has a value.")
         self.type = type
         self.lang = lang
-        self.string = string
+        self.label = label
 
     def get_uri(self):
         uri = f"/c/{self.lang}"
-        if self.string:
-            uri += f"/{self.string}"
+        if self.label:
+            uri += f"/{self.label}"
             if self.type:
-                uri += f"/{self.type.value}"
+                uri += f"{self.type.value}"
         return uri

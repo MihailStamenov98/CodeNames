@@ -129,15 +129,15 @@ def query_conceptnet(
             for edge_json in response_json["edges"]:
                 start_concept_json = edge_json["start"]
                 end_concept_json = edge_json["end"]
-                related_concept_json = (
+                related_concept_label = (
                     end_concept_json["label"]
-                    if start_concept_json["label"].lower() == concept.lower()
+                    if start_concept_json["label"].lower() == concept.label.lower()
                     else start_concept_json["label"]
                 )
                 weight = edge_json["weight"]
                 # Check if related concept is a noun and not a stopword
-                if is_valid_concept(related_concept_json):
-                    related_concepts.append((related_concept_json, weight))
+                if is_valid_concept(related_concept_label):
+                    related_concepts.append((related_concept_label, weight))
     return related_concepts
 
 

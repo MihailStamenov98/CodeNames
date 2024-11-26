@@ -16,7 +16,7 @@ def generate_board_with_related_concepts(
     and the rest of the board is filled with random unrelated English concepts from ConceptNet.
     """
     query_concept = Concept(
-        lang=lang, string=query_concept_label, type=Part_of_Speech.NOUN
+        lang=lang, label=query_concept_label, type=Part_of_Speech.NOUN
     )
     # Query ConceptNet for related concepts to the query concept
     related_concepts = query_conceptnet(concept=query_concept, lang=lang)
