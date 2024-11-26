@@ -55,8 +55,27 @@ def build_complex_query_string(
     return url
 
 
+# Function to add new concept in random_concepts if suitable
+def add_new_concept(
+    concept_json, concepts, lang, different_from_concepts: List[str] = None
+):
+    """
+    Add new concept_json's label in concepts if suitable.
+    """
+    concept_label = concept_json["label"]
+    if (
+        concept_json["language"] == lang
+        and concept_label not in concepts
+        and is_valid_concept(concept_label)
+    ):
+        if different_from_concepts and (concept_label not in different_from_concepts):
+            concepts.append(concept_label)
+        elif different_from_concepts is None:
+            concepts.append(concept_label)
+
+
 # Function to get random unrelated concepts from ConceptNet
-def get_random_concepts(n, lang="en"):
+def get_random_concepts(n, different_from_concepts: List[str] = None, lang="en"):
     """
     Fetch random unrelated concepts from ConceptNet.
     Returns a list of random English concepts.
@@ -70,7 +89,6 @@ def get_random_concepts(n, lang="en"):
         url = build_complex_query_string(
             concept=concepts_for_lang,
             offset=random_integer,
-            limit=1,
             limit=100,
         )
         start_time = time.time()
@@ -84,27 +102,16 @@ def get_random_concepts(n, lang="en"):
         )
         if "edges" in response:
             for edge_json in response["edges"]:
-                print(edge_json)
                 start_concept_json = edge_json["start"]
                 end_concept_json = edge_json["end"]
-                random_concept = None
-                # Ensure the concept is in English and not already in the list
-                if (
-                    start_concept_json["language"] == lang
-                    and start_concept_json["label"] not in random_concepts
-                ):
-                    random_concept = start_concept_json["label"]
-                elif (
-                    end_concept_json["language"] == lang
-                    and end_concept_json["label"] not in random_concepts
-                ):
-                    random_concept = end_concept_json["label"]
-                if is_valid_concept(random_concept):
-                    print("HERE")
-                    random_concepts.append(random_concept)
+                add_new_concept(
+                    start_concept_json, random_concepts, lang, different_from_concepts
+                )
+                add_new_concept(
+                    end_concept_json, random_concepts, lang, different_from_concepts
+                )
                 if len(random_concepts) >= n:
                     break
-
     return random_concepts[:n]
 
 
@@ -126,7 +133,7 @@ def query_conceptnet(
     Returns a list of related concepts and their weights, filtered by language.
     """
     related_concepts = []
-
+    print(concept.get_uri())
     for rel in relation_list:
         url = build_complex_query_string(
             concept=concept,
