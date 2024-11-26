@@ -163,11 +163,10 @@ def query_conceptnet(
 def is_valid_concept(word):
     if word:
         doc = nlp(word)
-        print("doc")
-        print(doc)
-        for token in doc:
-            if token.text.lower() in stop_words:
-                return False
-            if token.pos_ == "NOUN" and not token.is_stop:
-                return True
+        if len(doc) == 1:
+            for token in doc:
+                if token.text.lower() in stop_words:
+                    return False
+                if token.pos_ == "NOUN" and not token.is_stop:
+                    return True
     return False
