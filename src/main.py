@@ -1,10 +1,12 @@
 import random
+from enums import Part_of_Speech
 from query_conceptnet import (
     get_random_concepts,
     query_conceptnet,
     Concept,
-    Part_of_Speech,
 )
+
+import time
 
 
 # Function to generate a board that includes exactly n related concepts and random unrelated concepts
@@ -19,8 +21,14 @@ def generate_board_with_related_concepts(
         lang=lang, label=query_concept_label, type=Part_of_Speech.NOUN
     )
     # Query ConceptNet for related concepts to the query concept
+    start_time = time.time()
     related_concepts = query_conceptnet(concept=query_concept, lang=lang)
-
+    end_time = time.time()
+    # Calculate elapsed time
+    elapsed_time = end_time - start_time
+    print(f"Related concepts took: {elapsed_time:.2f} seconds")
+    print(f"Related concepts: {related_concepts}")
+    print("------------Related concepts ENDED-----------------")
     # Sort related concepts by their weight (highest relevance first)
     sorted_related_concepts = [
         concept
@@ -33,7 +41,18 @@ def generate_board_with_related_concepts(
     board = top_n_related_concepts.copy()
 
     # Get random unrelated concepts to fill the board (excluding related ones)
-    random_unrelated_concepts = get_random_concepts(board_size - n)
+    start_time = time.time()
+    random_unrelated_concepts = get_random_concepts(
+        n=board_size - n,
+        different_from_concepts=board + [query_concept.label],
+        lang=lang,
+    )
+    end_time = time.time()
+    # Calculate elapsed time
+    elapsed_time = end_time - start_time
+    print(
+        f"Get random concepts took: {elapsed_time:.2f} seconds for {board_size - n} concepts"
+    )
 
     # Combine the related and random unrelated concepts
     board += random_unrelated_concepts
@@ -90,7 +109,7 @@ def generate_training_instances(num_instances=5, board_size=25, lang="en"):
             ]
         )
 
-        # Randomly pick a number n (between 1 and 5)
+        # Randomly pick a number n (between 1 and board_size // 2)
         n = random.randint(1, board_size // 2)
 
         # Create a training instance

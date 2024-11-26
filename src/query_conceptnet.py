@@ -6,6 +6,8 @@ import spacy
 import nltk
 from nltk.corpus import stopwords
 from typing import List
+import time
+
 
 CONCEPTNET_API_URL = "http://api.conceptnet.io/"
 MAX_NUMBER_OF_EDGES = 10000
@@ -69,9 +71,17 @@ def get_random_concepts(n, lang="en"):
             concept=concepts_for_lang,
             offset=random_integer,
             limit=1,
+            limit=100,
         )
+        start_time = time.time()
         response = requests.get(url).json()
-
+        # End time
+        end_time = time.time()
+        # Calculate elapsed time
+        elapsed_time = end_time - start_time
+        print(
+            f"Elapsed time for fetching random concepts: {elapsed_time:.2f} seconds ({url})"
+        )
         if "edges" in response:
             for edge_json in response["edges"]:
                 print(edge_json)
@@ -124,7 +134,15 @@ def query_conceptnet(
             limit=limit_per_relation,
             relation=rel,
         )
+        start_time = time.time()
         response_json = requests.get(url).json()
+        # End time
+        end_time = time.time()
+        # Calculate elapsed time
+        elapsed_time = end_time - start_time
+        print(
+            f"Elapsed time for fetching relation {rel.value}: {elapsed_time:.2f} seconds ({url})"
+        )
         if "edges" in response_json:
             for edge_json in response_json["edges"]:
                 start_concept_json = edge_json["start"]
